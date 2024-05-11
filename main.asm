@@ -17,6 +17,7 @@ section .data
 	screenSize: dd 101d
 	total: dd 10099
 
+	;	3 numbers for position, 3 numbers for colour
 	vertices: dd 0, 0, 100, 255, 0, 0,		99, 0, 100, 0, 255, 0,		-50, -50, 100, 0, 0, 255
 	verticesLength equ $-vertices
 
@@ -26,14 +27,14 @@ section .data
 
 	sign: dd 1
 
+	;	27 = ESC, 91 = [, 51 = 3, 48 = 0, 109 = m		Does an ascii escape sequence to change the colour to 30 (black)
 	colours: db 27, 91, 51, 48, 109
 	coloursLength equ $-colours
 
 section .text
 
 _start:
-	;	Output Formatting
-
+	;	Screen "Buffer" Formatting
 	mov eax, 0								; Total counter
 	mov ebx, 1								; Counter in current line
 	Loop1:
@@ -90,10 +91,10 @@ _start:
 	add edx, edi
 
 	Loop2:
-		mov eax, ecx						; y offset in screen buffer
+		mov eax, ecx							; y offset in screen buffer
 		imul eax, dword [screenSize]
 
-		mov byte [output + ebx + eax], "@"	; draw pixel at (x0, y0)
+		mov byte [output + ebx + eax], "@"		; draw pixel at (x0, y0)
 
 		cmp ebx, [vertices + 24]				; if x0 == x1 and y0 == y1 then break
 		jne Skip4
@@ -132,18 +133,18 @@ _start:
 
 
 	;	Screen clearing
-	mov	eax, 4								; Specify sys_write call
-	mov ebx, 1								; Specify File Descriptor 1: Stdout
-	mov ecx, formatting						; Pass message string
-	mov edx, formattingLength				; Pass the length of the message string
+	mov	eax, 4									; Specify sys_write call
+	mov ebx, 1									; Specify File Descriptor 1: Stdout
+	mov ecx, formatting							; Pass message string
+	mov edx, formattingLength					; Pass the length of the message string
 	int 0x80
 
 
 	;	Output
-	mov	eax, 4								; Specify sys_write call
-	mov ebx, 1								; Specify File Descriptor 1: Stdout
-	mov ecx, output							; Pass message string
-	mov edx, outputLength					; Pass the length of the message string
+	mov	eax, 4									; Specify sys_write call
+	mov ebx, 1									; Specify File Descriptor 1: Stdout
+	mov ecx, output								; Pass message string
+	mov edx, outputLength						; Pass the length of the message string
 	int 0x80
 
 
@@ -185,6 +186,6 @@ _start:
 
 
 	;	Project exit
-	mov eax, 1								; Exits the program
+	mov eax, 1									; Exits the program
 	mov ebx, 0
 	int 0x80
