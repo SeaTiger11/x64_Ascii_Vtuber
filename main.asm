@@ -5,6 +5,9 @@
 global _start
 
 section .data
+	;density:	db	"$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,^`'. "
+	;densityLength equ $-density
+
 	formatting: db 27, "[H", 27, "[2J"
 	formattingLength: equ $-formatting
 
@@ -21,7 +24,10 @@ section .data
     tv_sec  dd 0
     tv_usec dd 30000000						; 20fps
 
-	sign: db 1
+	sign: dd 1
+
+	colours: db 27, 91, 51, 48, 109
+	coloursLength equ $-colours
 
 section .text
 
@@ -132,6 +138,7 @@ _start:
 	mov edx, formattingLength				; Pass the length of the message string
 	int 0x80
 
+
 	;	Output
 	mov	eax, 4								; Specify sys_write call
 	mov ebx, 1								; Specify File Descriptor 1: Stdout
@@ -160,6 +167,19 @@ _start:
 	neg eax
 	add dword [vertices + 28], eax
 	mov [sign], eax
+
+	;	Set new colour
+	inc byte [colours + 3]
+	cmp byte [colours + 3], 55
+	jle Skip7
+		mov byte [colours + 3], 49
+	Skip7:
+
+	mov eax, 4
+	mov ebx, 1
+	mov ecx, colours
+	mov edx, coloursLength
+	int 0x80
 
 	jmp _start
 
